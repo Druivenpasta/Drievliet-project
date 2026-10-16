@@ -59,31 +59,36 @@ def determine_psi(data):
     # FIXME obviously do this it aint done
     # my thought is that we should be able to infer the phase by seeing the accel data
 
+
 def model(t, r_large, r_small, omega, epsilon, theta, h_0, psi=0):
     """Inserting the model params and a timestep,
-      returns a predicted position vector with the midpoint taken as origin."""
-    
-    output_vector = np.array([0.,0.,0.])
+    returns a predicted position vector with the midpoint taken as origin.
+    Supports array inputs for t and theta.
+    """
 
-    # the approach with least causes of eye disorders is inputting each vec seperately
-    # the vectors in order found in the pdf
+    # The vectors in order found in the pdf
+
     vector1 = np.array([
-        r_large*np.cos(theta)*np.cos(omega*t),
-        h_0 + r_large*np.sin(theta),
-        r_large*np.cos(theta)*np.sin(omega*t)
+        r_large * np.cos(theta) * np.cos(omega * t),
+        h_0 + r_large * np.sin(theta) * np.ones_like(t),
+        r_large * np.cos(theta) * np.sin(omega * t)
     ])
+
     vector2 = np.array([
-        r_small*np.cos(epsilon*t)*np.sin(omega*t),
-        0,
-        -r_small*np.cos(epsilon*t)*np.cos(omega*t)
+        r_small * np.cos(epsilon * t) * np.sin(omega * t),
+        np.zeros_like(t),
+        -r_small * np.cos(epsilon * t) * np.cos(omega * t)
     ])
+
     vector3 = np.array([
-        -r_small*np.sin(epsilon*t)*np.cos(omega*t)*np.cos(theta),
-        -r_small*np.sin(epsilon*t)*np.sin(theta),
-        -r_small*np.sin(epsilon*t)*np.sin(omega*t)*np.cos(theta)
+        -r_small * np.sin(epsilon * t) * np.cos(omega * t) * np.cos(theta),
+        -r_small * np.sin(epsilon * t) * np.sin(theta),
+        -r_small * np.sin(epsilon * t) * np.sin(omega * t) * np.cos(theta)
     ])
+
     output_vector = vector1 + vector2 + vector3
     return output_vector
+
 
 # to reduce drift I probably need to find the acceleration analytically
 # FIXME find the second derivative through something like wolfram
