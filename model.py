@@ -14,30 +14,45 @@ def prep_folder(foldername):
 
 # this function returns the angle and its two derivatives needed for accel
 # because we defined it not differentiable in the pdf we resort to a cubic smoothstep which can be looked up
+
+import numpy as np
+
 def angle_function(t):
     """
-    Returns a thriple with the angle, its first diff and its second diff, in that order.
-    
-    Output angles are in radians.
+    Returns theta, theta_dot, theta_ddot, in that order.
+    Works with scalars and NumPy arrays.
+    Angles are in radians.
     """
-
     theta_start = -np.pi / 12
     theta_end = np.pi / 4
-
-    if t <= 70:
-        return theta_start, 0.0, 0.0
-
-    if t >= 85:
-        return theta_end, 0.0, 0.0
-
-    u = (t - 70) / 15
     delta = theta_end - theta_start
 
-    theta = theta_start + delta * (3*u**2 - 2*u**3)
-    theta_dot = delta * (6*u - 6*u**2) / 15
-    theta_ddot = delta * (6 - 12*u) / 15**2
+    # Smoothstep parameter
+    u = (np.asarray(t) - 70) / 15
+
+    # Smoothstep and its derivatives
+    theta_smooth = theta_start + delta * (3*u**2 - 2*u**3)
+    theta_dot_smooth = delta * (6*u - 6*u**2) / 15
+    theta_ddot_smooth = delta * (6 - 12*u) / 15**2
+
+    # Apply the constant-angle regions
+    theta = np.where(
+        np.asarray(t) <= 70, theta_start,
+        np.where(np.asarray(t) >= 85, theta_end, theta_smooth)
+    )
+
+    theta_dot = np.where(
+        (np.asarray(t) <= 70) | (np.asarray(t) >= 85),
+        0.0, theta_dot_smooth
+    )
+
+    theta_ddot = np.where(
+        (np.asarray(t) <= 70) | (np.asarray(t) >= 85),
+        0.0, theta_ddot_smooth
+    )
 
     return theta, theta_dot, theta_ddot
+
 
 def determine_psi(data):
     """This function should be ran first to find out how much the cart is out of phase, so we fit properly"""
