@@ -59,28 +59,28 @@ def determine_psi(data):
     # FIXME obviously do this it aint done
     # my thought is that we should be able to infer the phase by seeing the accel data
 
-
 def model(t, r_large, r_small, omega, epsilon, theta, h_0, psi=0):
-    """Inserting the model params and a timestep,
-    returns a predicted position vector with the midpoint taken as origin.
+    """Returns a position vector with the midpoint taken as origin.
     Supports array inputs for t and theta.
+    Output shape: (3, N) for N time points.
     """
+    # model als gedefinieerd in de pdf. Als het goed is is het nu correct gevectoriseerd.
+    t = np.asarray(t)
+    theta = np.asarray(theta)
 
-    # The vectors in order found in the pdf
-
-    vector1 = np.array([
+    vector1 = np.stack([
         r_large * np.cos(theta) * np.cos(omega * t),
-        h_0 + r_large * np.sin(theta) * np.ones_like(t),
+        h_0 + r_large * np.sin(theta),
         r_large * np.cos(theta) * np.sin(omega * t)
     ])
 
-    vector2 = np.array([
+    vector2 = np.stack([
         r_small * np.cos(epsilon * t) * np.sin(omega * t),
-        np.zeros_like(t),
+        np.zeros_like(t, dtype=float),
         -r_small * np.cos(epsilon * t) * np.cos(omega * t)
     ])
 
-    vector3 = np.array([
+    vector3 = np.stack([
         -r_small * np.sin(epsilon * t) * np.cos(omega * t) * np.cos(theta),
         -r_small * np.sin(epsilon * t) * np.sin(theta),
         -r_small * np.sin(epsilon * t) * np.sin(omega * t) * np.cos(theta)
@@ -88,6 +88,7 @@ def model(t, r_large, r_small, omega, epsilon, theta, h_0, psi=0):
 
     output_vector = vector1 + vector2 + vector3
     return output_vector
+
 
 
 # to reduce drift I probably need to find the acceleration analytically
