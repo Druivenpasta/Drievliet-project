@@ -6,7 +6,11 @@ import pathlib
 # this folder marked here will be used for comparison, as it received the most post-processing
 DATA_DIR = pathlib.Path(r'Drievliet-project\Drievliet - Marte 2 2026-09-25 14-33-49')
 
-# lets first just define the model
+def prep_folder(foldername):
+    """Creates a new directory if it does not exist."""
+    directory = pathlib.Path(foldername)
+    directory.mkdir(exist_ok=True)
+
 
 # this function returns the angle and its two derivatives needed for accel
 # because we defined it not differentiable in the pdf we resort to a cubic smoothstep which can be looked up
@@ -16,7 +20,7 @@ def angle_function(t):
     
     Output angles are in radians.
     """
-    
+
     theta_start = -np.pi / 12
     theta_end = np.pi / 4
 
@@ -40,7 +44,7 @@ def determine_psi(data):
     # FIXME obviously do this it aint done
     # my thought is that we should be able to infer the phase by seeing the accel data
 
-def model(t, r_small, r_large, omega, epsilon, theta, h_0, psi):
+def model(t, r_large, r_small, omega, epsilon, theta, h_0, psi=0):
     """Inserting the model params and a timestep,
       returns a predicted position vector with the midpoint taken as origin."""
     
